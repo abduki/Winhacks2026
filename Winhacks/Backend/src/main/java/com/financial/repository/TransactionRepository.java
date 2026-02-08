@@ -1,6 +1,6 @@
-package com.financial;
+package com.financial.repository;
 
-import org.h2.mvstore.tx.Transaction;
+import com.financial.backend.models.Transaction; // Ensure this is the only Transaction import
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
