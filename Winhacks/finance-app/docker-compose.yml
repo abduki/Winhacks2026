@@ -1,0 +1,41 @@
+services:
+  # 1. Database
+  db:
+    image: postgres:15-alpine
+    container_name: finance-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: financedb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # 2. Java Spring Boot API
+  backend:
+    build: ./Backend
+    container_name: finance-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/financedb
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+
+  # 3. Next.js Frontend
+  frontend:
+    build: ./frontend
+    container_name: finance-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+
+volumes:
+  postgres_data:

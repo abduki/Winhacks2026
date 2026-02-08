@@ -1,0 +1,17 @@
+# General
+.DS_Store
+.env.local
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Backend
+Backend/target/
+Backend/.mvn/
+Backend/bin/
+*.class
+
+# Docker
+postgres_data/
