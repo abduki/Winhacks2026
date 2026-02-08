@@ -1,9 +1,9 @@
-package com.financial; 
+package com.financial.backend.service; 
 
 import java.util.List;
 
 import com.financial.backend.models.Transaction;
-import com.financial.repository.TransactionRepository;
+import com.financial.backend.repository.TransactionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 

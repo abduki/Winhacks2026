@@ -1,11 +1,14 @@
-package com.financial;
+package com.financial.backend.controller;
 
+
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.financial.backend.models.Transaction;
+import com.financial.backend.service.FileTransactionService;
 @RestController
 @RequestMapping("/api/transactions")
 public class TransactionController {
@@ -27,5 +30,9 @@ public class TransactionController {
     @PostMapping("/import")
     public void importFile(@RequestBody String json) throws JsonProcessingException { 
         service.importJson(json); 
+    }
+    @GetMapping
+    public List<Transaction> getAll() {
+        return service.getAll();
     }
 }

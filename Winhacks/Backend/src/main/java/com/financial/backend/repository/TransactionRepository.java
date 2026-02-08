@@ -1,4 +1,4 @@
-package com.financial.repository;
+package com.financial.backend.repository;
 
 import com.financial.backend.models.Transaction; // Ensure this is the only Transaction import
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,7 +1,5 @@
 package com.financial.backend.models;
 
-import org.springframework.data.annotation.Id;
-
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
