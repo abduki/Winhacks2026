@@ -1,34 +1,47 @@
 services:
-  # 1. Database
+  # 1. Database - The source of truth for your data
   db:
     image: postgres:15-alpine
     container_name: finance-db
     environment:
       POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: password123
       POSTGRES_DB: financedb
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d financedb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # 2. Java Spring Boot API
+  # 2. Spring Boot Backend - The Java API
   backend:
-    build: ./Backend
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
     container_name: finance-backend
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/financedb
       - SPRING_DATASOURCE_USERNAME=user
-      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_PASSWORD=password123
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      # This ensures the browser login uses the same credentials
+      - SPRING_SECURITY_USER_NAME=user
+      - SPRING_SECURITY_USER_PASSWORD=password123
 
-  # 3. Next.js Frontend
+  # 3. Next.js Frontend - The UI
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: finance-frontend
     ports:
       - "3000:3000"
