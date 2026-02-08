@@ -1,12 +1,14 @@
-package com.financial;
-
+package com.financial; 
 
 import java.util.List;
 
-import org.h2.mvstore.tx.Transaction;
+import com.financial.backend.models.Transaction;
+import com.financial.repository.TransactionRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -15,50 +17,42 @@ public class FileTransactionService {
 
     private final TransactionRepository repository;
 
-    // Add & Edit (Save handles both: if ID exists, it updates; if not, it creates)
-    public Transaction saveTransaction(Transaction transaction) {
-        return repository.save(transaction);
-    }
-
-    // Remove
-    public void deleteTransaction(Long id) {
-        repository.deleteById(id);
-    }
-
-    // Import from JSON List
-    @Transactional
-    public List<Transaction> importTransactions(List<Transaction> transactions) {
-        return repository.saveAll(transactions);
-    }
-
     public List<Transaction> getAll() {
         return repository.findAll();
     }
 
-    public void importJson(String json) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'importJson'");
+    public void add(Transaction t) {
+        repository.save(t);
     }
 
-    public Transaction add(Transaction t) {
-        return repository.save(t);
-    }
-
-    // 2. DELETE: Remove by ID
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
-    // 3. EDIT: Find, Update fields, then Save
+    @Transactional
     public Transaction edit(Long id, Transaction t) {
         return repository.findById(id)
-            .map(existingTransaction -> {
-                // Update the fields from 't' into the 'existingTransaction'
-                existingTransaction.setDescription(t.getDescription());
-                existingTransaction.setAmount(t.getAmount());
-                existingTransaction.setTransactionDate(t.getTransactionDate());
-                return repository.save(existingTransaction);
+            .map(existing -> {
+                if (t.getDescription() != null) existing.setDescription(t.getDescription());
+                if (t.getAmount() != null) existing.setAmount(t.getAmount());
+                if (t.getCategory() != null) existing.setCategory(t.getCategory());
+                if (t.getDate() != null) existing.setDate(t.getDate());
+                if (t.getUser() != null) existing.setUser(t.getUser());
+                
+                return repository.save(existing);
             })
-            .orElseThrow(() -> new RuntimeException("Transaction not found with id " + id));
+            .orElseThrow(() -> new RuntimeException("Transaction not found with id: " + id));
+    }
+
+    @Transactional
+    public void importJson(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules(); 
+        
+        List<Transaction> transactions = mapper.readValue(
+            json, 
+            mapper.getTypeFactory().constructCollectionType(List.class, Transaction.class)
+        );
+        repository.saveAll(transactions);
     }
 }
